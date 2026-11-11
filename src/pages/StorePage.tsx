@@ -28,6 +28,7 @@ export const StorePage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // الفلاتر
   const [selectedAudience, setSelectedAudience] = useState<string>('الكل');
@@ -43,20 +44,33 @@ export const StorePage: React.FC = () => {
   // تحميل البيانات الأولية
   const loadData = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const [settingsData, catsData, prodsData, bundlesData] = await Promise.all([
+      const [settingsRes, catsRes, prodsRes, bundlesRes] = await Promise.allSettled([
         getStoreSettings(),
         getCategories(),
         getProducts({ includeHidden: false }),
         getBundles(true),
       ]);
 
-      setSettings(settingsData);
-      setCategories(catsData);
-      setProducts(prodsData);
-      setBundles(bundlesData);
-    } catch (err) {
-      console.error('فشل تحميل بيانات المتجر:', err);
+      if (settingsRes.status === 'fulfilled') setSettings(settingsRes.value);
+      if (catsRes.status === 'fulfilled') setCategories(catsRes.value);
+      if (prodsRes.status === 'fulfilled') setProducts(prodsRes.value);
+      if (bundlesRes.status === 'fulfilled') setBundles(bundlesRes.value);
+
+      const failed = [catsRes, prodsRes, bundlesRes].find(
+        (res): res is PromiseRejectedResult => res.status === 'rejected'
+      );
+      if (failed) {
+        const msg =
+          failed.reason instanceof Error
+            ? failed.reason.message
+            : typeof failed.reason === 'object' && failed.reason && 'message' in failed.reason
+              ? String((failed.reason as { message: unknown }).message)
+              : 'تعذر الاتصال بقاعدة البيانات';
+        console.error('فشل تحميل بيانات المتجر:', failed.reason);
+        setLoadError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,6 +198,27 @@ export const StorePage: React.FC = () => {
               </div>
             ))}
           </div>
+        ) : loadError && products.length === 0 ? (
+          /* حالة فشل تحميل البيانات من قاعدة البيانات */
+          <div className="bg-white rounded-3xl border border-red-100 p-10 text-center max-w-lg mx-auto my-8 shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">تعذر تحميل بيانات المتجر</h3>
+            <p className="text-xs text-gray-500 font-tajawal mb-3">
+              تأكد من إعداد متغيرات Supabase وتنفيذ ملف الجداول في قاعدة البيانات ثم أعد المحاولة.
+            </p>
+            <p className="text-[11px] font-mono text-red-600 bg-red-50 rounded-xl px-3 py-2 mb-5 break-words" dir="ltr">
+              {loadError}
+            </p>
+            <button
+              onClick={loadData}
+              className="inline-flex items-center gap-2 bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-700 shadow-sm transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>إعادة المحاولة</span>
+            </button>
+          </div>
         ) : filteredProducts.length > 0 ? (
           /* شبكة المنتجات المتجاوبة */
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -195,6 +230,24 @@ export const StorePage: React.FC = () => {
                 onOpenDetails={setActiveModalProduct}
               />
             ))}
+          </div>
+        ) : products.length === 0 ? (
+          /* حالة عدم وجود منتجات منشورة في المتجر بعد */
+          <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center max-w-md mx-auto my-8 shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-8 h-8" />
+            </div>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">لا توجد منتجات منشورة حالياً</h3>
+            <p className="text-xs text-gray-500 font-tajawal mb-5">
+              المتجر متصل بنجاح، لكن لم تتم إضافة منتجات ظاهرة بعد. يمكنك إضافة المنتجات من لوحة الإدارة.
+            </p>
+            <button
+              onClick={loadData}
+              className="inline-flex items-center gap-2 bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-700 shadow-sm transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>تحديث البيانات</span>
+            </button>
           </div>
         ) : (
           /* حالة عدم وجود منتجات مطابقة للبحث أو الفلتر */
