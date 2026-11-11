@@ -56,3 +56,35 @@ npm run build
   - جدولة العروض الفردية بمؤقت تنازلي حي.
   - إنشاء باقات التوفير المجمعة مع الحساب التلقائي للأسعار والتوفير.
   - تخصيص إعدادات المتجر ورقم الواتساب والعملة.
+
+---
+
+## ☁️ النشر على Cloudflare Workers (Static Assets)
+
+تم تجهيز المشروع بالكامل للنشر عبر **Cloudflare Workers with Static Assets** عبر الملفات التالية:
+- `wrangler.jsonc`: يحدد مجلد البناء `./dist` ويفعّل `not_found_handling: "single-page-application"` لدعم مسارات React Router (مثل `/admin` و `/admin/login`) عند التحديث أو الدخول المباشر.
+- `public/_headers`: يضبط رؤوس الأمان وسياسات التخزين المؤقت (`Cache-Control`) ويمنع أرشفة `/admin/*`.
+- `public/robots.txt` و `public/favicon.svg`: ملف الزحف لمحركات البحث وأيقونة الموقع.
+
+### الطريقة 1: النشر التلقائي عبر ربط GitHub (Cloudflare Workers Builds)
+1. ادفع التعديلات إلى مستودع GitHub.
+2. من لوحة تحكم Cloudflare: **Workers & Pages** ← **Create** ← **Import a repository**.
+3. اختر مستودع `OnlineStore` واستخدم الإعدادات التالية:
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+4. **مهم جداً — متغيرات البناء (Build variables):**
+   أضف المتغيرات التالية داخل **Settings → Build → Variables and secrets** (لأن Vite يدمج متغيرات `VITE_*` أثناء وقت البناء):
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+
+### الطريقة 2: النشر مباشرة من الجهاز عبر Wrangler
+```bash
+# تسجيل الدخول إلى حساب Cloudflare (مرة واحدة)
+npx wrangler login
+
+# بناء المشروع ونشره
+npm run deploy
+```
+
+### إعداد إضافي في Supabase بعد النشر
+بعد الحصول على رابط الموقع على Cloudflare (مثل `https://online-store.<subdomain>.workers.dev` أو النطاق المخصص)، توجه إلى **Authentication → URL Configuration** في لوحة تحكم Supabase وأضف رابط الموقع ضمن **Site URL** و **Redirect URLs**.

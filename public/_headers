@@ -1,0 +1,22 @@
+# Security headers for all static responses
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Keep admin pages out of search engine indexes
+/admin
+  X-Robots-Tag: noindex, nofollow
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+
+# Long-lived immutable cache for content-hashed Vite assets
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Always revalidate the SPA HTML shell
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+

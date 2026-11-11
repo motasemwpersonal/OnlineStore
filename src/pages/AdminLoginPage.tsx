@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, ShieldCheck, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -111,17 +112,19 @@ export const AdminLoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* تلميح بيانات تجريبية للمعاينة الفورية */}
-          <div className="mt-6 pt-5 border-t border-gray-100 text-center">
-            <p className="text-xs text-gray-500 mb-2">للمعاينة والتجربة الفورية:</p>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors border border-emerald-200"
-            >
-              ملء بيانات حساب مدير تجريبي
-            </button>
-          </div>
+          {/* تلميح بيانات تجريبية للمعاينة الفورية (يظهر فقط عند عدم ربط Supabase) */}
+          {!isSupabaseConfigured() && (
+            <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-500 mb-2">للمعاينة والتجربة الفورية:</p>
+              <button
+                type="button"
+                onClick={handleFillDemo}
+                className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors border border-emerald-200"
+              >
+                ملء بيانات حساب مدير تجريبي
+              </button>
+            </div>
+          )}
 
           <div className="mt-4 text-center">
             <Link
