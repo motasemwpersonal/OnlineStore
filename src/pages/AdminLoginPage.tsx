@@ -25,7 +25,11 @@ export const AdminLoginPage: React.FC = () => {
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        toast.error('بيانات الدخول غير صحيحة أو حدث خطأ أثناء المصادقة');
+        const errorMsg =
+          error.message === 'Invalid login credentials'
+            ? 'بيانات الدخول غير صحيحة. تأكد من إنشاء هذا الحساب أولاً في لوحة تحكم Supabase.'
+            : error.message || 'بيانات الدخول غير صحيحة أو حدث خطأ أثناء المصادقة';
+        toast.error(errorMsg);
       } else {
         toast.success('تم تسجيل الدخول بنجاح، مرحباً بك في لوحة الإدارة');
         navigate('/admin');
