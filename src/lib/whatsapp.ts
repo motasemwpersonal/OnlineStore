@@ -9,6 +9,23 @@ export interface CustomerOrderInfo {
 }
 
 /**
+ * توحيد صيغة رقم الواتساب بالرمز الدولي لضمان فتح المحادثة بدون أخطاء
+ */
+export function normalizeWhatsAppNumber(rawNumber: string): string {
+  let cleaned = (rawNumber || '').replace(/[^0-9]/g, '');
+  if (cleaned.startsWith('00')) {
+    cleaned = cleaned.substring(2);
+  }
+  // معالجة الأرقام اليمنية المحلية (9 أرقام تبدأ بـ 7 أو 10 أرقام تبدأ بـ 07)
+  if (cleaned.startsWith('07') && cleaned.length === 10) {
+    cleaned = '967' + cleaned.substring(1);
+  } else if (cleaned.startsWith('7') && cleaned.length === 9) {
+    cleaned = '967' + cleaned;
+  }
+  return cleaned;
+}
+
+/**
  * دالة توليد رسالة واتساب منسقة واحترافية للطلب المباشر
  */
 export function generateWhatsAppOrderUrl(
@@ -19,7 +36,7 @@ export function generateWhatsAppOrderUrl(
   if (items.length === 0) return '';
 
   const currency = settings.currency || 'ر.ي';
-  const cleanPhone = settings.whatsapp_number.replace(/[^0-9]/g, '');
+  const cleanPhone = normalizeWhatsAppNumber(settings.whatsapp_number);
 
   let totalPrice = 0;
   let totalOriginalPrice = 0;

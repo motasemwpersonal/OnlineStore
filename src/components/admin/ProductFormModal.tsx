@@ -200,6 +200,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         {/* زر الإغلاق */}
         <button
           onClick={onClose}
+          aria-label="إغلاق النافذة"
           className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
         >
           <X className="w-4 h-4" />

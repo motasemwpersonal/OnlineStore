@@ -103,6 +103,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
         {/* زر الإغلاق */}
         <button
           onClick={onClose}
+          aria-label="إغلاق تفاصيل المنتج"
           className="absolute top-4 left-4 z-20 w-9 h-9 rounded-full bg-white/90 text-gray-700 hover:bg-gray-100 flex items-center justify-center shadow-md transition-all"
         >
           <X className="w-5 h-5" />

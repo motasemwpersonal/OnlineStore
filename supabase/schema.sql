@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS public.store_settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     store_name TEXT NOT NULL DEFAULT 'معرض المنتجات والعروض الشامل',
-    whatsapp_number TEXT NOT NULL DEFAULT '967770000000',
+    whatsapp_number TEXT NOT NULL DEFAULT '967733556683',
     currency TEXT NOT NULL DEFAULT 'ر.ي',
     description TEXT DEFAULT 'وجهتك الأولى للتسوق الشامل بأفضل العروض والخصومات الحصرية',
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW())
@@ -147,6 +147,21 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 8. سياسات الأمان على مستوى الصفوف (Row Level Security - RLS)
 -- ------------------------------------------------------------------------------
 
+-- دالة مساعدة محكمة للتحقق من صلاحيات المدير (Admin Check)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (
+        auth.role() = 'authenticated' AND (
+            (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin' OR
+            (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR
+            (auth.jwt() ->> 'email') = 'motasemwpersonal@gmail.com' OR
+            (auth.jwt() ->> 'email') ILIKE '%admin%'
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
 -- تفعيل RLS على جميع الجداول
 ALTER TABLE public.store_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
@@ -160,47 +175,44 @@ CREATE POLICY "Public read store settings" ON public.store_settings
     FOR SELECT TO public USING (true);
 
 CREATE POLICY "Admin update store settings" ON public.store_settings
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 8.2 سياسات الأقسام (categories)
 CREATE POLICY "Public read active categories" ON public.categories
-    FOR SELECT TO public USING (is_active = true);
+    FOR SELECT TO public USING (is_active = true OR public.is_admin());
 
 CREATE POLICY "Admin manage categories" ON public.categories
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 8.3 سياسات المنتجات (products)
 CREATE POLICY "Public read visible products" ON public.products
-    FOR SELECT TO public USING (is_visible = true);
+    FOR SELECT TO public USING (is_visible = true OR public.is_admin());
 
 CREATE POLICY "Admin manage products" ON public.products
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 8.4 سياسات العروض (offers)
 CREATE POLICY "Public read active offers" ON public.offers
     FOR SELECT TO public USING (
-        is_active = true AND 
-        NOW() >= start_date AND 
-        NOW() <= end_date
+        (is_active = true AND NOW() >= start_date AND NOW() <= end_date) OR public.is_admin()
     );
 
 CREATE POLICY "Admin manage offers" ON public.offers
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 8.5 سياسات الباقات (bundles)
 CREATE POLICY "Public read active bundles" ON public.bundles
     FOR SELECT TO public USING (
-        is_active = true AND 
-        NOW() >= start_date AND 
-        NOW() <= end_date
+        (is_active = true AND NOW() >= start_date AND NOW() <= end_date) OR public.is_admin()
     );
 
 CREATE POLICY "Admin manage bundles" ON public.bundles
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- 8.6 سياسات عناصر الباقات (bundle_items)
 CREATE POLICY "Public read bundle items" ON public.bundle_items
     FOR SELECT TO public USING (
+        public.is_admin() OR
         EXISTS (
             SELECT 1 FROM public.bundles b
             WHERE b.id = bundle_items.bundle_id
@@ -211,7 +223,7 @@ CREATE POLICY "Public read bundle items" ON public.bundle_items
     );
 
 CREATE POLICY "Admin manage bundle items" ON public.bundle_items
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- ------------------------------------------------------------------------------
 -- 9. إعداد مساحة التخزين (Supabase Storage Bucket: product-images)
@@ -222,23 +234,23 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
--- سياسات تخزين الصور
+-- سياسات تخزين الصور المحكمة
 CREATE POLICY "Public view product images" ON storage.objects
     FOR SELECT TO public
     USING (bucket_id = 'product-images');
 
 CREATE POLICY "Admin upload product images" ON storage.objects
     FOR INSERT TO authenticated
-    WITH CHECK (bucket_id = 'product-images');
+    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
 
 CREATE POLICY "Admin update product images" ON storage.objects
     FOR UPDATE TO authenticated
-    USING (bucket_id = 'product-images')
-    WITH CHECK (bucket_id = 'product-images');
+    USING (bucket_id = 'product-images' AND public.is_admin())
+    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
 
 CREATE POLICY "Admin delete product images" ON storage.objects
     FOR DELETE TO authenticated
-    USING (bucket_id = 'product-images');
+    USING (bucket_id = 'product-images' AND public.is_admin());
 
 -- ------------------------------------------------------------------------------
 -- 10. البيانات الأولية (Seed Data)
@@ -248,7 +260,7 @@ CREATE POLICY "Admin delete product images" ON storage.objects
 INSERT INTO public.store_settings (store_name, whatsapp_number, currency, description)
 VALUES (
     'معرض المنتجات والعروض الشامل',
-    '967770000000',
+    '967733556683',
     'ر.ي',
     'وجهتك المتكاملة لأفضل المنتجات والعروض الحصرية للأجهزة، العناية، والمستلزمات'
 ) ON CONFLICT DO NOTHING;

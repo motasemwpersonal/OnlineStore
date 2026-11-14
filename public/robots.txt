@@ -3,3 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
+Sitemap: https://onlinestore.pages.dev/sitemap.xml

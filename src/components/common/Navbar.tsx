@@ -2,6 +2,7 @@ import React from 'react';
 import { ShoppingBag, Search, ShieldCheck, Sparkles, PhoneCall } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { StoreSettings } from '@/types/database';
+import { normalizeWhatsAppNumber } from '@/lib/whatsapp';
 import { Link } from 'react-router-dom';
 
 interface NavbarProps {
@@ -14,6 +15,11 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
   const { toggleCart, getItemsCount } = useCartStore();
   const itemsCount = getItemsCount();
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    (document.activeElement as HTMLElement)?.blur();
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
       {/* الشريط العلوي المصغر للملاحظات ورقم الواتساب */}
@@ -25,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
           </div>
           {settings?.whatsapp_number && (
             <a
-              href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '')}`}
+              href={`https://wa.me/${normalizeWhatsAppNumber(settings.whatsapp_number)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 hover:text-amber-200 transition-colors font-mono"
@@ -56,16 +62,17 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
 
         {/* مربع البحث التفاعلي الفوري */}
         <div className="flex-1 max-w-lg mx-2 hidden md:block">
-          <div className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="ابحث عن منتج، ماركة، أو قسم..."
+              aria-label="البحث عن المنتجات"
               className="w-full bg-gray-50 border border-gray-200 rounded-full py-2.5 pr-11 pl-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all shadow-inner"
             />
             <Search className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2" />
-          </div>
+          </form>
         </div>
 
         {/* أزرار الإجراءات (لوحة الإدارة + السلة) */}
@@ -74,6 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
             to="/admin"
             className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-emerald-700 bg-gray-100 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-all font-medium"
             title="لوحة تحكم الإدارة"
+            aria-label="الانتقال إلى لوحة تحكم الإدارة"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span className="hidden sm:inline">لوحة الإدارة</span>
@@ -82,6 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
           {/* زر السلة العائمة */}
           <button
             onClick={toggleCart}
+            aria-label={`سلة المشتريات، ${itemsCount} عناصر`}
             className="relative flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95"
           >
             <ShoppingBag className="w-5 h-5" />
@@ -97,16 +106,17 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
 
       {/* مربع البحث في الشاشات الصغيرة */}
       <div className="px-4 pb-3 md:hidden">
-        <div className="relative">
+        <form onSubmit={handleSearchSubmit} className="relative">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="ابحث عن منتج، ماركة، أو قسم..."
+            aria-label="البحث عن المنتجات"
             className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 pr-10 pl-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
           />
           <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-        </div>
+        </form>
       </div>
     </header>
   );

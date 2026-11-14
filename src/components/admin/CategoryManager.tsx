@@ -247,7 +247,9 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ categories, on
                 {editingCategory ? 'تعديل القسم' : 'إضافة قسم جديد'}
               </h4>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
+                aria-label="إغلاق النافذة"
                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
               >
                 <X className="w-4 h-4" />

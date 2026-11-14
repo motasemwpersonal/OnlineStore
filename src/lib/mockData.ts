@@ -3,7 +3,7 @@ import { Category, Product, Bundle, StoreSettings, Offer } from '@/types/databas
 export const mockStoreSettings: StoreSettings = {
   id: 'setting-1',
   store_name: 'معرض المنتجات والعروض الشامل',
-  whatsapp_number: '967770000000',
+  whatsapp_number: '967733556683',
   currency: 'ر.ي',
   description: 'وجهتك الأولى لأفضل المنتجات الأصلية والعروض الحصرية بأفضل الأسعار الممكنة',
 };

@@ -48,7 +48,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ settings }) => {
   const defaultSettings: StoreSettings = settings || {
     id: 'default',
     store_name: 'معرض المنتجات والعروض',
-    whatsapp_number: '967770000000',
+    whatsapp_number: '967733556683',
     currency: 'ر.ي',
   };
 
@@ -99,6 +99,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ settings }) => {
 
             <button
               onClick={closeCart}
+              aria-label="إغلاق السلة"
               className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
             >
               <X className="w-5 h-5" />

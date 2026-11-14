@@ -151,7 +151,9 @@ export const BundleFormModal: React.FC<BundleFormModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
       <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto relative animate-slide-up">
         <button
+          type="button"
           onClick={onClose}
+          aria-label="إغلاق النافذة"
           className="absolute top-5 left-5 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
         >
           <X className="w-4 h-4" />

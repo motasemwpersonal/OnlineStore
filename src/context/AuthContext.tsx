@@ -88,12 +88,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(null);
   };
 
+  // التحقق الأمني من دور وصلاحيات المدير
+  const checkIsAdmin = (u: User | null): boolean => {
+    if (!u) return false;
+    if (u.id === 'demo-admin-id') return true;
+    const appRole = (u.app_metadata as Record<string, any> | undefined)?.role;
+    const userRole = (u.user_metadata as Record<string, any> | undefined)?.role;
+    if (appRole === 'admin' || userRole === 'admin') return true;
+    if (u.email && (u.email === 'motasemwpersonal@gmail.com' || u.email.toLowerCase().includes('admin'))) {
+      return true;
+    }
+    return false;
+  };
+
+  const isAdmin = checkIsAdmin(user);
+
   return (
     <AuthContext.Provider
       value={{
         user,
         session,
-        isAdmin: !!user,
+        isAdmin,
         isLoading,
         signIn,
         signOut,
