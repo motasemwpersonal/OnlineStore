@@ -38,7 +38,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   }
 
   if (!isAdmin) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/waqas/admin/login" replace />;
   }
 
   const navItems = [

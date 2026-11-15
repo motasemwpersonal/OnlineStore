@@ -44,7 +44,7 @@ export const NotFoundPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center gap-3 justify-center">
+          <div className="pt-2 flex items-center justify-center">
             <Link
               to="/"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-600/20 active:scale-95 transition-all"
@@ -52,13 +52,6 @@ export const NotFoundPage: React.FC = () => {
               <ShoppingBag className="w-4 h-4" />
               <span>تصفح جميع المنتجات</span>
               <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <Link
-              to="/admin"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 py-3 px-4 font-bold transition-colors"
-            >
-              لوحة الإدارة
             </Link>
           </div>
         </div>

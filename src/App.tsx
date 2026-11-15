@@ -47,9 +47,9 @@ export const App: React.FC = () => {
             {/* واجهة المتجر الرئيسية للعملاء */}
             <Route path="/" element={<StorePage />} />
 
-            {/* لوحة تحكم الإدارة */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin/*" element={<AdminDashboardPage />} />
+            {/* لوحة تحكم الإدارة عبر المسار السري المخصص لحمايتها من الوصول العام */}
+            <Route path="/waqas/admin/login" element={<AdminLoginPage />} />
+            <Route path="/waqas/admin/*" element={<AdminDashboardPage />} />
 
             {/* صفحة 404 المخصصة لأي رابط غير معروف */}
             <Route path="*" element={<NotFoundPage />} />

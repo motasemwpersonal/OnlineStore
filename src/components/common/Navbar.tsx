@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Search, ShieldCheck, Sparkles, PhoneCall } from 'lucide-react';
+import { ShoppingBag, Search, Sparkles, PhoneCall } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { StoreSettings } from '@/types/database';
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp';
@@ -75,18 +75,8 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, searchQuery, onSearchC
           </form>
         </div>
 
-        {/* أزرار الإجراءات (لوحة الإدارة + السلة) */}
+        {/* أزرار الإجراءات (السلة) */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/admin"
-            className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-emerald-700 bg-gray-100 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-all font-medium"
-            title="لوحة تحكم الإدارة"
-            aria-label="الانتقال إلى لوحة تحكم الإدارة"
-          >
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span className="hidden sm:inline">لوحة الإدارة</span>
-          </Link>
-
           {/* زر السلة العائمة */}
           <button
             onClick={toggleCart}

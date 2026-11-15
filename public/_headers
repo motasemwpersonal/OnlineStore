@@ -13,6 +13,9 @@
 /admin/*
   X-Robots-Tag: noindex, nofollow
 
+/waqas/*
+  X-Robots-Tag: noindex, nofollow
+
 # Long-lived immutable cache for content-hashed Vite assets
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

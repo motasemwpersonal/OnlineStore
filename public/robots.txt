@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
+Disallow: /waqas/
+Disallow: /waqas/*
 
 Sitemap: https://onlinestore.pages.dev/sitemap.xml

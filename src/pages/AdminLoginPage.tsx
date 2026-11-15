@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, ShieldCheck, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,24 +26,18 @@ export const AdminLoginPage: React.FC = () => {
       if (error) {
         const errorMsg =
           error.message === 'Invalid login credentials'
-            ? 'بيانات الدخول غير صحيحة. تأكد من إنشاء هذا الحساب أولاً في لوحة تحكم Supabase.'
+            ? 'بيانات الدخول غير صحيحة. تأكد من إدخال البريد وكلمة المرور الصحيحة.'
             : error.message || 'بيانات الدخول غير صحيحة أو حدث خطأ أثناء المصادقة';
         toast.error(errorMsg);
       } else {
-        toast.success('تم تسجيل الدخول بنجاح، مرحباً بك في لوحة الإدارة');
-        navigate('/admin');
+        toast.success('تم تسجيل الدخول بنجاح، مرحباً بك');
+        navigate('/waqas/admin');
       }
     } catch (err: any) {
       toast.error(err.message || 'فشل تسجيل الدخول');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFillDemo = () => {
-    setEmail('admin@store.com');
-    setPassword('admin123');
-    toast.info('تم ملء بيانات المدير التجريبية');
   };
 
   return (
@@ -116,21 +109,7 @@ export const AdminLoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* تلميح بيانات تجريبية للمعاينة الفورية (يظهر فقط عند عدم ربط Supabase) */}
-          {!isSupabaseConfigured() && (
-            <div className="mt-6 pt-5 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-500 mb-2">للمعاينة والتجربة الفورية:</p>
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors border border-emerald-200"
-              >
-                ملء بيانات حساب مدير تجريبي
-              </button>
-            </div>
-          )}
-
-          <div className="mt-4 text-center">
+          <div className="mt-6 pt-5 border-t border-gray-100 text-center">
             <Link
               to="/"
               className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-emerald-700 font-medium"

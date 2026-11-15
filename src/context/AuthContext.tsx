@@ -20,12 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
-      // التحقق من الجلسة التجريبية في localStorage
-      const demoUser = localStorage.getItem('demo_admin_user');
-      if (demoUser) {
-        const parsed = JSON.parse(demoUser);
-        setUser(parsed);
-      }
       setIsLoading(false);
       return;
     }
@@ -51,18 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     if (!isSupabaseConfigured()) {
-      // وضع الديمو للمعاينة السريعة
-      if (email && password) {
-        const mockAdminUser = {
-          id: 'demo-admin-id',
-          email,
-          user_metadata: { role: 'admin' },
-        } as unknown as User;
-        setUser(mockAdminUser);
-        localStorage.setItem('demo_admin_user', JSON.stringify(mockAdminUser));
-        return { error: null };
-      }
-      return { error: new Error('يرجى إدخال البريد الإلكتروني وكلمة المرور') };
+      return { error: new Error('يرجى ضبط متغيرات ربط Supabase في إعدادات البيئة أولاً.') };
     }
 
     try {
@@ -79,7 +62,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     if (!isSupabaseConfigured()) {
       setUser(null);
-      localStorage.removeItem('demo_admin_user');
       return;
     }
 
@@ -91,7 +73,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // التحقق الأمني من دور وصلاحيات المدير
   const checkIsAdmin = (u: User | null): boolean => {
     if (!u) return false;
-    if (u.id === 'demo-admin-id') return true;
     const appRole = (u.app_metadata as Record<string, any> | undefined)?.role;
     const userRole = (u.user_metadata as Record<string, any> | undefined)?.role;
     if (appRole === 'admin' || userRole === 'admin') return true;
